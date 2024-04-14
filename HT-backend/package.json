@@ -1,0 +1,22 @@
+{
+  "name": "ht-backend",
+  "version": "1.0.0",
+  "description": "backend of the habit tracker application",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "Habit-Tracker"
+  },
+  "author": "mostafa badr & mostafa el shahawy",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.5.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
