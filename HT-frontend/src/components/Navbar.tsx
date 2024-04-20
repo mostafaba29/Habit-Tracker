@@ -10,13 +10,16 @@ const Navbar:React.FC = () => {
                     <Link to="/">Home</Link>
                 </li>
                 <li>
-                    <Link to="/add-habit">Add Habit</Link>
+                    <Link to="/habits">Habits</Link>
                 </li>
                 <li>
                     <Link to="/calendar">Calendar</Link>
                 </li>
                 <li>
                     <Link to="/statistics">Statistics</Link>
+                </li>
+                <li>
+                    <Link to="/login">Login</Link>
                 </li>
             </ul>
         </nav>
