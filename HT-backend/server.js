@@ -11,11 +11,7 @@ process.on("uncaughtException", err => {
 
 const DB = process.env.DATABASE;
 
-mongoose
-  .connect(DB, {
-    useNewUrlParser: true
-  })
-  .then(() => console.log("Connected To The Database"));
+mongoose.connect(DB).then(() => console.log("Connected To The Database"));
 
 const port = process.env.PORT || 8080;
 const server = app.listen(port, () => {

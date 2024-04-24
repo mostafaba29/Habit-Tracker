@@ -4,7 +4,6 @@ const habitSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true["a habit must have a name"],
-    unique: true,
     trim: true
   },
   description: {
@@ -14,8 +13,11 @@ const habitSchema = new mongoose.Schema({
   Done: Boolean,
   duration: Number,
   startTime: Date,
-  repetitionPerMonth: Number,
-  repetitionPerWeek: Number,
+  repetition: {
+    daily: Number,
+    weekly: Number,
+    monthly: Number
+  },
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
