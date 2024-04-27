@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const compressoin = require("compression");
 const cors = require("cors");
+
 const AppError = require("./utils/appError");
 const userRouter = require("./routes/userRoutes");
 const habitRouter = require("./routes/habitRoutes");
@@ -20,8 +21,8 @@ app.use(cors());
 app.options("*", cors());
 
 //Routes
-app.use("api/v1/users", userRouter);
-app.use("api/v1/habits", habitRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/habits", habitRouter);
 
 //error msg for undefined routes
 app.all("*", (req, res, next) => {

@@ -1,3 +1,3 @@
 exports.getAllHabits = (req, res) => {
-  res.send("dddd");
+  res.send("testing route");
 };
