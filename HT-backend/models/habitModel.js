@@ -13,10 +13,10 @@ const habitSchema = new mongoose.Schema({
   Done: Boolean,
   duration: Number,
   startTime: Date,
-  repetition: {
-    daily: Number,
-    weekly: Number,
-    monthly: Number
+  freqency: {
+    type: String,
+    value: Number,
+    trim: true
   },
   toJSON: { virtuals: true },
   toObject: { virtuals: true }

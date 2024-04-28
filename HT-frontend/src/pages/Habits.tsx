@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
+import SideBar from "../components/SideBar";
+import QuoteSection from "../components/QuoteSection";
+import AddHabitForm from "../components/AddHabitForm";
 import '../assets/styles/HabitsStyle.css';
 import axios from "axios";
 
@@ -12,6 +14,7 @@ interface Habit {
 }
 const Habits:React.FC = () => {
     const [habits,setHabits] = useState<Habit[]>([]);
+    const [showForm,setShowForm] = useState<boolean>(false);
     const getHabits = async ()=>{
         try{
             const response = await axios.get<Habit[]>('http://localhost:5000/habits',{withCredentials: true});
@@ -25,9 +28,19 @@ const Habits:React.FC = () => {
         getHabits();
     },[]);
 
+    const handleAddHabitClick = ()=>{
+        setShowForm(true);
+    }
+
+    const handleHabitSubmission =()=>{
+        setShowForm(false);
+        getHabits();
+
+    }
     return (
         <>
-        <Navbar />
+        <QuoteSection />
+        <SideBar />
         <div className="habits">
             <table>
                 <thead>
@@ -50,6 +63,8 @@ const Habits:React.FC = () => {
                 </tbody>
             </table>
         </div>
+        <button id='add-habit' onClick={handleAddHabitClick}>Add Habit</button>
+        {showForm && <AddHabitForm onSubmit={handleHabitSubmission}/>}
         </>
     );
 };  
