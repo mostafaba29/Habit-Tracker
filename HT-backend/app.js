@@ -9,6 +9,7 @@ const habitRouter = require("./routes/habitRoutes");
 
 const app = express();
 
+app.use(bodyParser.json());
 app.use(morgan("dev"));
 
 //request size limiter
@@ -20,8 +21,8 @@ app.use(cors());
 app.options("*", cors());
 
 //Routes
-app.use("api/v1/users", userRouter);
-app.use("api/v1/habits", habitRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/habits", habitRouter);
 
 //error msg for undefined routes
 app.all("*", (req, res, next) => {
