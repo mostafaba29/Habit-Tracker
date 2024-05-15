@@ -1,10 +1,17 @@
-const catchAsyc = require("./../utils/catchAsync");
-const User = require("./../models/userModel");
+const passport = require("passport");
 
-exports.signup = catchAsyc(async (req, res, next) => {
-  const newUser = await User.create(req.body);
-  res.status(201).json({
-    status: "success",
-    user: newUser
-  });
+exports.googleAuth = passport.authenticate('google',{
+  scope: ['profile', 'email'],
 });
+
+exports.googleAuthCallback = passport.authenticate('google',{
+  failureRedirect: '/login',
+  session: false,
+});
+
+exports.authRedirect = async (req,res,next)=>{
+  const token = await req.user.generateJWT();
+  res.cookie('token',token);
+  res.redirect('http://localhost:5713/habits');
+  next();
+}
