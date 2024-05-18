@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema({
-  googleId:{
+  googleId: {
     type: String,
     required: true["a user must have a googleId"],
     unique: true
@@ -16,28 +16,29 @@ const UserSchema = new mongoose.Schema({
     required: true["A user must have an email"],
     unique: true
   },
-  habits: {
-    type: mongoose.Schema.ObjectId,
-    ref: "Habit"
-  },
   image: String,
   created_at: {
     type: Date,
     default: Date.now
+  },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
   }
 });
 
-UserSchema.methods.generateJWT = function () {
-  const payload ={
+UserSchema.methods.generateJWT = function() {
+  const payload = {
     id: this._id,
     googleId: this.googleId,
     username: this.username,
     email: this.email
   };
-  const token = jwt.sign(payload, process.env.JWT_SECRET,{
-    expiresIn:'7d'
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: "7d"
   });
-  return token
+  return token;
 };
 
 const User = mongoose.model("User", UserSchema);
