@@ -18,8 +18,12 @@ exports.googleAuthCallback = passport.authenticate("google", {
 
 exports.authRedirect = async (req, res, next) => {
   const token = await req.user.generateJWT();
-  res.cookie("token", token);
-  res.redirect("http://localhost:5713/habits");
+  res.cookie("jwtToken", token,{
+    httpOnly: false,
+    secure: false,
+    sameSite:'Lax'
+  });
+  res.redirect("http://localhost:5713/home");
   next();
 };
 

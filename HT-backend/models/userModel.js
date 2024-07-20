@@ -33,7 +33,8 @@ UserSchema.methods.generateJWT = function() {
     id: this._id,
     googleId: this.googleId,
     username: this.username,
-    email: this.email
+    email: this.email,
+    image: this.image
   };
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: "7d"
