@@ -1,5 +1,4 @@
 const catchAsync = require("../utils/catchAsync");
-const User = require("../models/userModel");
 const Habit = require("../models/habitModel");
 
 exports.createHabit = catchAsync(async (req, res) => {
