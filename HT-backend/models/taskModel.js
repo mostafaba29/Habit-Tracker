@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const habitSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema({
   title: {
     type: String,
     required: [true, "Title is required"]
@@ -13,33 +13,21 @@ const habitSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
-  frequency: {
+  priority: {
     type: String,
-    enum: ["daily", "weekly", "monthly"],
-    default: "daily"
-  },
-  targetCount: {
-    type: Number,
-    default: 1
+    enum: ["low", "medium", "high"],
+    default: "medium"
   },
   status: {
     type: String,
     enum: ["inProgress", "completed"],
     default: "inProgress"
   },
-  startDate: {
-    type: Date,
-    default: Date.now
-  },
-  endDate: {
-    type: Date
-  },
-  completedDates: [Date],
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-const Habit = mongoose.model("Habit", habitSchema);
-module.exports = Habit;
+const Task = mongoose.model("Task", taskSchema);
+module.exports = Task;

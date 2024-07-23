@@ -9,6 +9,8 @@ const session = require("express-session");
 const AppError = require("./utils/appError");
 const userRouter = require("./routes/userRoutes");
 const habitRouter = require("./routes/habitRoutes");
+const taskRouter = require("./routes/habitRoutes");
+const achievementRouter = require("./routes/habitRoutes");
 
 require("./config/passport");
 
@@ -45,6 +47,8 @@ app.use(passport.session());
 // Routes
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/habits", habitRouter);
+app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/achievements", achievementRouter);
 
 // Google OAuth2 routes
 app.get(

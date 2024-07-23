@@ -4,10 +4,12 @@ const authController = require("../Controllers/authControllers");
 
 const router = express.Router();
 
+router.use(authController.protect);
+
 router
   .route("/")
-  .get(authController.protect, habitController.getAllUserHabits)
-  .post(authController.protect, habitController.createHabit);
+  .get(habitController.getAllHabits)
+  .post(habitController.createHabit);
 
 router
   .route("/:id")
