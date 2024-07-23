@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(compression());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://localhost:3001",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true
   })
@@ -63,11 +63,11 @@ app.get(
   (req, res) => {
     // Successful authentication, redirect home or as needed
     const token = req.user.generateJWT(); // Assuming the generateJWT method is defined in the user model
-    res.cookie("jwt", token, {
+    res.cookie("jwtToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production"
     });
-    res.redirect("http://localhost:5173/habits");
+    res.redirect("http://localhost:5173/home");
   }
 );
 
