@@ -8,7 +8,7 @@ router.use(authController.protect);
 
 router
   .route("/")
-  .get(taskController.getAllTasks)
+  .get(taskController.getAllUserTasks)
   .post(taskController.createTask);
 
 router
@@ -16,5 +16,7 @@ router
   .get(taskController.getOneTask)
   .patch(taskController.updateTask)
   .delete(taskController.deleteTask);
+
+router.post("complete-task", taskController.completeTask);
 
 module.exports = router;

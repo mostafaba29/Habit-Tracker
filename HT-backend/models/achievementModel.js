@@ -27,6 +27,10 @@ const achievementSchema = new mongoose.Schema({
   completedHabitsCount: {
     type: Number,
     default: 0
+  },
+  hotStreak: {
+    type: Number,
+    default: 0
   }
 });
 

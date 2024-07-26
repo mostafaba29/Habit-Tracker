@@ -1,0 +1,29 @@
+userRoutes
+
+login = GET /auth/google/callback
+getUserPage = GET api/v1/users
+deleteUser = DELETE api/v1/users
+
+habitRoutes
+
+getUserHabits = GET /api/v1/habits
+createHabit = POST /api/v1/habits
+getOneHabit = GET /api/v1/habits/:id
+updateHabit = PATCH /api/v1/habits/:id
+deleteHabit = DELETE /api/v1/habits/:id
+completeHabit = POST /api/v1/habits/complete-habit
+
+
+taskRoutes
+
+getUserTasks = GET /api/v1/tasks
+createTask = POST /api/v1/tasks
+getOneTask = GET /api/v1/tasks/:id
+updateTask = PATCH /api/v1/tasks/:id
+deleteTask = DELETE /api/v1/tasks/:id
+completeTask = POST /api/v1/tasks/complete-task
+
+
+achievementRoutes
+
+getAllAchievements = GET api/v1/achievements

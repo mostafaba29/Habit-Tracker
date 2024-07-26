@@ -8,7 +8,7 @@ router.use(authController.protect);
 
 router
   .route("/")
-  .get(habitController.getAllHabits)
+  .get(habitController.getAllUserHabits)
   .post(habitController.createHabit);
 
 router
@@ -16,5 +16,7 @@ router
   .get(habitController.getOneHabit)
   .patch(habitController.updateHabit)
   .delete(habitController.deleteHabit);
+
+router.post("complete-habit", habitController.completeTask);
 
 module.exports = router;

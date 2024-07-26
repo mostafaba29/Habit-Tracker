@@ -1,10 +1,29 @@
-const catchAsync = require("../utils/catchAsync");
 const User = require("../models/userModel");
+const catchAsync = require("../utils/catchAsync");
 
-exports.getUserInfo = catchAsync((req, res) => {
-  const user = User.find();
+exports.getUserPage = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found"
+    });
+  }
+
   res.status(200).json({
     status: "success",
-    user
+    data: {
+      user
+    }
+  });
+});
+
+exports.deleteUser = catchAsync(async (req, res) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: "success",
+    data: null
   });
 });

@@ -8,9 +8,11 @@ router.get("/signup", authController.signup);
 router.get("/login", authController.login);
 router.get("/logout", authController.logout);
 
+router.use(authController.protect);
+
 router
   .route("/")
-  .get(userController.getUserInfo)
-  .patch(userController.updateUser);
+  .get(userController.getUserPage)
+  .delete(userController.deleteUser);
 
 module.exports = router;

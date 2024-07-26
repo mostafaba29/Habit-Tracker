@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(compression());
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: "http://localhost:3003",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true
   })
@@ -36,7 +36,7 @@ app.use(
 // Initialize Passport and session middleware
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "random secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false
   })
@@ -45,7 +45,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use("/api/v1/user", userRouter);
+app.use("/api/v1/users", userRouter);
 app.use("/api/v1/habits", habitRouter);
 app.use("/api/v1/tasks", taskRouter);
 app.use("/api/v1/achievements", achievementRouter);
@@ -66,10 +66,9 @@ app.get(
   }),
   (req, res) => {
     // Successful authentication, redirect home or as needed
-    const token = req.user.generateJWT(); // Assuming the generateJWT method is defined in the user model
+    const token = req.user.generateJWT();
     res.cookie("jwtToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production"
+      httpOnly: true
     });
     res.redirect("http://localhost:5173/home");
   }

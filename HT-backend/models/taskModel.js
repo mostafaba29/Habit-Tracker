@@ -18,15 +18,16 @@ const taskSchema = new mongoose.Schema({
     enum: ["low", "medium", "high"],
     default: "medium"
   },
-  status: {
-    type: String,
-    enum: ["inProgress", "completed"],
-    default: "inProgress"
-  },
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  completedDates: [
+    {
+      date: Date,
+      isCompleted: Boolean
+    }
+  ]
 });
 
 const Task = mongoose.model("Task", taskSchema);

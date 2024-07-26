@@ -8,6 +8,10 @@ const habitSchema = new mongoose.Schema({
   description: {
     type: String
   },
+  type: {
+    type: String,
+    enum: ["repeated", "timeBased", "oneTime"]
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -22,11 +26,6 @@ const habitSchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
-  status: {
-    type: String,
-    enum: ["inProgress", "completed"],
-    default: "inProgress"
-  },
   startDate: {
     type: Date,
     default: Date.now
@@ -34,7 +33,12 @@ const habitSchema = new mongoose.Schema({
   endDate: {
     type: Date
   },
-  completedDates: [Date],
+  completedDates: [
+    {
+      date: Date,
+      isCompleted: Boolean
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now
