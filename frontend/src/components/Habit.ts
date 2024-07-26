@@ -1,7 +1,7 @@
 export interface Habit {
     name:string;
     description:string;
-    done:boolean;
+    done:string[];
     duration:number;
     startTime:Date;
     freqency: {
@@ -10,3 +10,25 @@ export interface Habit {
     };
     user: string;
 }
+
+
+export const HabitCategories = [
+    "Art",
+    "Meditation",
+    "sports",
+    "study",
+    "entertainment",
+    "other",
+    "social",
+    "finance",
+    "health",
+    "work",
+    "nutrition",
+    "other",
+]
+
+export const HabitTypes = [
+    "timed",
+    "numeric",
+    "yes or no"
+]
