@@ -8,31 +8,14 @@ const habitSchema = new mongoose.Schema({
   description: {
     type: String
   },
-  type: {
-    type: String,
-    enum: ["repeated", "timeBased", "oneTime"]
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
   frequency: {
     type: String,
     enum: ["daily", "weekly", "monthly"],
     default: "daily"
   },
-  targetCount: {
-    type: Number,
-    default: 1
-  },
-  startDate: {
-    type: Date,
-    default: Date.now
-  },
-  endDate: {
-    type: Date
-  },
+  timesPerFrequency: { type: Number },
+  occurrencesPerDay: { type: Number },
+  time: String,
   completedDates: [
     {
       date: Date,

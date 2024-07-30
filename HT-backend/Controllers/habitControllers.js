@@ -1,47 +1,100 @@
+const {
+  format,
+  addDays,
+  addWeeks,
+  addMonths,
+  startOfToday,
+  endOfMonth,
+  differenceInCalendarDays
+} = require("date-fns");
 const Habit = require("../models/habitModel");
 const Achievement = require("../models/achievementModel");
 const catchAsync = require("../utils/catchAsync");
 
-exports.getAllUserHabits = catchAsync(async (req, res) => {
-  const habits = await Habit.find({ user: req.user.id });
+const generateHabitDates = (frequency, timesPerFrequency) => {
+  const dates = [];
+  const today = startOfToday();
+  const endMonth = endOfMonth(today);
 
-  res.status(200).json({
-    status: "success",
-    results: habits.length,
-    data: {
-      habits
+  if (frequency === "daily") {
+    for (
+      let date = today;
+      differenceInCalendarDays(endMonth, date) >= 0;
+      date = addDays(date, 1)
+    ) {
+      dates.push(date);
     }
-  });
-});
-
-exports.createHabit = catchAsync(async (req, res) => {
-  req.body.user = req.user.id;
-  const habit = await Habit.create(req.body);
-
-  res.status(201).json({
-    status: "success",
-    data: {
-      habit
+  } else if (frequency === "weekly") {
+    const weekdays = [...Array(7).keys()].slice(0, timesPerFrequency);
+    for (
+      let date = today;
+      differenceInCalendarDays(endMonth, date) >= 0;
+      date = addWeeks(date, 1)
+    ) {
+      weekdays.forEach(day => dates.push(addDays(date, day)));
     }
-  });
-});
-
-exports.getOneHabit = catchAsync(async (req, res) => {
-  const habit = await Habit.findById(req.params.id);
-
-  if (!habit) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Habit not found"
-    });
+  } else if (frequency === "monthly") {
+    const daysInMonth = differenceInCalendarDays(endMonth, today) + 1;
+    // eslint-disable-next-line no-plusplus
+    for (let day = 1; day <= daysInMonth; day++) {
+      if (day % Math.floor(daysInMonth / timesPerFrequency) === 0) {
+        dates.push(addDays(today, day - 1));
+      }
+    }
   }
+  return dates;
+};
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      habit
-    }
-  });
+exports.getAllUserHabits = catchAsync(async (req, res) => {
+  //   const habits = await Habit.find({ user: req.user.id });
+
+  //   res.status(200).json({
+  //     status: "success",
+  //     results: habits.length,
+  //     data: {
+  //       habits
+  //     }
+  //   });
+  // });
+
+  // exports.createHabit = catchAsync(async (req, res) => {
+  //   req.body.user = req.user.id;
+  //   const habit = await Habit.create(req.body);
+
+  //   res.status(201).json({
+  //     status: "success",
+  //     data: {
+  //       habit
+  //     }
+  //   });
+  const {
+    name,
+    frequency,
+    timesPerFrequency,
+    occurrencesPerDay,
+    duration,
+    startTime
+  } = req.body;
+
+  const habitDates = generateHabitDates(frequency, timesPerFrequency);
+  const habits = habitDates.map(date => ({
+    name,
+    frequency,
+    timesPerFrequency,
+    occurrencesPerDay,
+    duration,
+    startTime: new Date(
+      date.setHours(
+        new Date(startTime).getHours(),
+        new Date(startTime).getMinutes()
+      )
+    ),
+    user: req.user._id
+  }));
+
+  const createdHabits = await Habit.insertMany(habits);
+
+  res.status(201).json({ status: "success", data: createdHabits });
 });
 
 exports.updateHabit = catchAsync(async (req, res) => {
