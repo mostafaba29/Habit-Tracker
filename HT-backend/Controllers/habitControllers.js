@@ -46,27 +46,19 @@ const generateHabitDates = (frequency, timesPerFrequency) => {
 };
 
 exports.getAllUserHabits = catchAsync(async (req, res) => {
-  //   const habits = await Habit.find({ user: req.user.id });
+  const habits = await Habit.find({ user: req.user.id });
 
-  //   res.status(200).json({
-  //     status: "success",
-  //     results: habits.length,
-  //     data: {
-  //       habits
-  //     }
-  //   });
-  // });
+  res.status(200).json({
+    status: "success",
+    results: habits.length,
+    data: {
+      habits
+    }
+  });
+});
 
-  // exports.createHabit = catchAsync(async (req, res) => {
-  //   req.body.user = req.user.id;
-  //   const habit = await Habit.create(req.body);
-
-  //   res.status(201).json({
-  //     status: "success",
-  //     data: {
-  //       habit
-  //     }
-  //   });
+exports.createHabit = catchAsync(async (req, res) => {
+  req.body.user = req.user.id;
   const {
     name,
     frequency,
