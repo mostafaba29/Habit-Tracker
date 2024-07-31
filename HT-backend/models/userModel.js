@@ -1,21 +1,14 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  googleId: {
-    type: String,
-    required: true
-  },
   name: {
     type: String,
     required: [true, "Name is required"]
   },
-  email: {
+  phone: {
     type: String,
-    required: true,
+    required: [true, "phone is required"],
     unique: true
-  },
-  avatar: {
-    type: String
   },
   active: {
     type: Boolean,

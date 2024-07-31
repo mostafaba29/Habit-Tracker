@@ -17,7 +17,6 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  time: String,
   completedDates: [
     {
       date: Date,

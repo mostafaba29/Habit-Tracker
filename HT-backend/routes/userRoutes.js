@@ -1,14 +1,14 @@
 const express = require("express");
-const authController = require("./../Controllers/authControllers");
 const userController = require("./../Controllers/userControllers");
+const IsLoggedIn = require("../Controllers/authControllers");
 
 const router = express.Router();
 
-// router.get("/signup", authController.signup);
-// router.get("/login", authController.login);
-// router.get("/logout", authController.logout);
+router.post("/signup", userController.signup);
+router.post("/login", userController.login);
+router.post("/logout", userController.logout);
 
-router.use(authController.protect);
+router.use(IsLoggedIn);
 
 router
   .route("/")

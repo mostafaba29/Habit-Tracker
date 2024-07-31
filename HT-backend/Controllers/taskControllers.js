@@ -4,7 +4,7 @@ const Achievement = require("../models/achievementModel");
 const catchAsync = require("../utils/catchAsync");
 
 exports.getAllUserTasks = catchAsync(async (req, res) => {
-  const tasks = await Task.find({ user: req.user.id });
+  const tasks = await Task.find({ user: req.user.phone });
 
   res.status(200).json({
     status: "success",
@@ -16,14 +16,11 @@ exports.getAllUserTasks = catchAsync(async (req, res) => {
 });
 
 exports.createTask = catchAsync(async (req, res) => {
-  req.body.user = req.user.id;
   const task = await Task.create(req.body);
 
   res.status(201).json({
     status: "success",
-    data: {
-      task
-    }
+    task
   });
 });
 

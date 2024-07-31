@@ -46,7 +46,7 @@ const generateHabitDates = (frequency, timesPerFrequency) => {
 };
 
 exports.getAllUserHabits = catchAsync(async (req, res) => {
-  const habits = await Habit.find({ user: req.user.id });
+  const habits = await Habit.find({ user: req.user.phone });
 
   res.status(200).json({
     status: "success",
@@ -58,7 +58,6 @@ exports.getAllUserHabits = catchAsync(async (req, res) => {
 });
 
 exports.createHabit = catchAsync(async (req, res) => {
-  req.body.user = req.user.id;
   const {
     name,
     frequency,
@@ -80,8 +79,7 @@ exports.createHabit = catchAsync(async (req, res) => {
         new Date(startTime).getHours(),
         new Date(startTime).getMinutes()
       )
-    ),
-    user: req.user._id
+    )
   }));
 
   const createdHabits = await Habit.insertMany(habits);
