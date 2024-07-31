@@ -6,6 +6,8 @@ import HabitGallery from "@/components/HabitGallery";
 import {Habit} from '@/components/Habit';
 import Upperbar from "@/components/Upperbar";
 import Sidebar from "@/components/Sidebar";
+import {Button} from '@/components/ui/button';
+import AddHabitForm from '@/components/AddHabitForm';
 const dummyHabits: Habit[] = [
     {
         name: "Morning Yoga",
@@ -191,18 +193,39 @@ const dummyHabits: Habit[] = [
 export default function Habits() {
     const [sideBarOpen,setSidebarOpen] =useState(false);
     const [userLoggedIn,setUserLoggedIn]=useState(false);
-  
+    const [habits,setHabits]=useState<Habit[]>([]);
+    const [addHabitDialog,setAddHabitDialog]=useState(false);
+    
+    const fetchUserHabits = async ()=>{
+        try{
+          const response = await axios.get('http://localhost:3000/api/v1/habits',{
+            withCredentials: true
+          });
+          setHabits(response.data.data);
+        }catch(error){
+          console.log(error);
+        }
+    }
     const userCheck = async ()=>{
         try {
-            const response = await axios.get('http://localhost:3000/api/user');
+            const response = await axios.get('http://localhost:3000/api/v1/users');
             setUserLoggedIn(response.data.loggedIn);
         } catch (error) {
             console.log(error);
         }
     }
+
+    const addHabitButtonClick = ()=>{
+        setAddHabitDialog(true);
+    }
+
+    const handleAddHabitDialogClose = ()=>{
+        setAddHabitDialog(false);
+    }
   
     useEffect(()=>{
       userCheck();
+      fetchUserHabits();
     },[])
   
   
@@ -210,14 +233,16 @@ export default function Habits() {
       setSidebarOpen(!sideBarOpen);
     }
     return (
-        <div className="bg-zinc-950 h-screen">
-    <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/>
-    <div className="flex flex-row items-start transition-all duration-500">
-      {sideBarOpen && <Sidebar open={sideBarOpen} userLoggedIn={userLoggedIn} userName={'mostafa badr'} userImage={'image.png'} />}
-      <div className="flex flex-grow justify-around">
-        <HabitGallery habits={dummyHabits} />
-      </div>
-    </div>
+    <div className="bg-zinc-950 h-screen">
+        <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/>
+        <div className="flex flex-row items-start transition-all duration-500">
+        {sideBarOpen && <Sidebar open={sideBarOpen} userLoggedIn={userLoggedIn} userName={'mostafa badr'} userImage={'image.png'} />}
+        <div className="flex flex-grow justify-around">
+        <Button className='my-4 bg-zinc-700 hover:bg-lime-900' onClick={addHabitButtonClick}>Add New Habit</Button>
+            <AddHabitForm isOpen={addHabitDialog}  onClose={()=>handleAddHabitDialogClose()}/>
+            <HabitGallery habits={habits} />
+         </div>
+        </div>
     </div>
     );
 }

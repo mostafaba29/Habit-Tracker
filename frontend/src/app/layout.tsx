@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-
-import Upperbar from "@/components/Upperbar";
+import ReactQueryProvider from "@/utils/ReactQueryProvider";
+import SessionProvider from "@/utils/SessionProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 
@@ -20,10 +20,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <SessionProvider>
       <head>
-      {/* <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/> */}
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ReactQueryProvider>
+          <div>{children}</div>
+        </ReactQueryProvider>
+        </body>
+      </SessionProvider>
     </html>
   );
 }

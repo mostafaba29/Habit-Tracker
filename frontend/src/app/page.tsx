@@ -11,31 +11,13 @@ import TaskList from '@/components/TaskList';
 const queryClinet = new QueryClient();
 export default function Home() {
   const [sideBarOpen,setSidebarOpen] =useState(false);
-  const [userLoggedIn,setUserLoggedIn]=useState(false);
-  const [habits,setHabits] = useState<Habit[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const fetchHabits = async ()=>{
-      try{
-        const response = await axios.get('http://localhost:3000/api/v1/habit');
-        setHabits(response.data);
-      }catch(error){
-        console.log(error);
-      }
-      }
-
-  const userCheck = async ()=>{
-      try {
-          const response = await axios.get('http://localhost:3000/api/user');
-          setUserLoggedIn(response.data.loggedIn);
-      } catch (error) {
-          console.log(error);
-      }
-  }
+  
 
 
   useEffect(()=>{
-    fetchHabits();
-    userCheck();
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID)
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET)
   },[])
 
 
@@ -47,7 +29,7 @@ export default function Home() {
     <div className="bg-zinc-950 h-screen">
     <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/>
     <div className="flex flex-row items-start transition-all duration-500">
-      {sideBarOpen && <Sidebar open={sideBarOpen} userLoggedIn={userLoggedIn} userName={'mostafa badr'} userImage={'image.png'} />}
+      {sideBarOpen && <Sidebar open={sideBarOpen} />}
       <div className="flex flex-grow justify-around">
         <Calendar selectedDate={selectedDate} onSelectedDate={setSelectedDate} />
       </div>
