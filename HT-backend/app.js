@@ -2,7 +2,8 @@ const express = require("express");
 const morgan = require("morgan");
 const compression = require("compression");
 const cors = require("cors");
-const session = require("express-session");
+const cookieSession = require("cookie-session");
+const bodyParser = require("body-parser");
 
 const AppError = require("./utils/appError");
 const userRouter = require("./routes/userRoutes");
@@ -14,13 +15,16 @@ const app = express();
 
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
-  session({
-    secret: "super-secret-session-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false }
+  cookieSession({
+    name: "session",
+    keys: ["secret-secret-key1"],
+    maxAge: 24 * 60 * 60 * 1000 * 30,
+    secure: false,
+    httpOnly: true
   })
 );
 

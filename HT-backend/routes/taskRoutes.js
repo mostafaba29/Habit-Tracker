@@ -16,6 +16,6 @@ router
   .patch(taskController.updateTask)
   .delete(taskController.deleteTask);
 
-router.post("complete-task", taskController.completeTask);
+router.post("/complete-task", taskController.completeTask);
 
 module.exports = router;

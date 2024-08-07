@@ -49,8 +49,8 @@ exports.logout = catchAsync(async (req, res) => {
   });
 });
 
-exports.getUserPage = catchAsync(async (req, res, next) => {
-  const user = await User.find(req.user.phone);
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
 
   if (!user) {
     return res.status(404).json({

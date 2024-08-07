@@ -1,10 +1,17 @@
 const Task = require("../models/taskModel");
+const User = require("../models/userModel");
 const Achievement = require("../models/achievementModel");
 
 const catchAsync = require("../utils/catchAsync");
 
 exports.getAllUserTasks = catchAsync(async (req, res) => {
-  const tasks = await Task.find({ user: req.user.phone });
+  const tasks = await Task.find({ user: req.user.id });
+  console.log(tasks);
+  if (tasks.length === 0) {
+    return res.status(404).json({
+      message: "No tasks found for this user"
+    });
+  }
 
   res.status(200).json({
     status: "success",
@@ -16,7 +23,21 @@ exports.getAllUserTasks = catchAsync(async (req, res) => {
 });
 
 exports.createTask = catchAsync(async (req, res) => {
-  const task = await Task.create(req.body);
+  const userId = req.user.id;
+  const { title, description, priority, time } = req.body;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const task = await Task.create({
+    title,
+    description,
+    priority,
+    time,
+    user: user._id
+  });
 
   res.status(201).json({
     status: "success",
@@ -80,8 +101,9 @@ exports.deleteTask = catchAsync(async (req, res) => {
 });
 
 exports.completeTask = catchAsync(async (req, res, next) => {
-  const { taskId, date } = req.body;
-  const task = await Task.findById(taskId);
+  const { id } = req.body;
+  const currentDate = new Date();
+  const task = await Task.findById(id);
 
   if (!task) {
     return res.status(404).json({
@@ -90,7 +112,7 @@ exports.completeTask = catchAsync(async (req, res, next) => {
     });
   }
 
-  task.completedDates.push({ date, isCompleted: true });
+  task.completedDates.push({ date: currentDate, isCompleted: true });
   await task.save();
 
   const achievements = await Achievement.findOne({ user: req.user.id });
@@ -100,13 +122,13 @@ exports.completeTask = catchAsync(async (req, res, next) => {
     if (
       achievements.lastStreakDate &&
       achievements.lastStreakDate.toDateString() ===
-        new Date(date - 1).toDateString()
+        new Date(currentDate.setDate(currentDate.getDate() - 1)).toDateString()
     ) {
       achievements.streakCount += 1;
     } else {
       achievements.streakCount = 1;
     }
-    achievements.lastStreakDate = date;
+    achievements.lastStreakDate = currentDate;
     achievements.hotStreak = Math.max(
       achievements.hotStreak,
       achievements.streakCount
@@ -117,7 +139,7 @@ exports.completeTask = catchAsync(async (req, res, next) => {
       user: req.user.id,
       completedTasksCount: 1,
       streakCount: 1,
-      lastStreakDate: date,
+      lastStreakDate: currentDate,
       hotStreak: 1
     });
   }

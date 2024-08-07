@@ -1,6 +1,9 @@
 userRoutes
 
-login = GET /auth/google/callback
+login = POST api/v1/users/login
+logout = POST api/v1/users/logout
+signup = POST api/v1/users/signup
+
 getUserPage = GET api/v1/users
 deleteUser = DELETE api/v1/users
 

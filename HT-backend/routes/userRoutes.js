@@ -12,7 +12,7 @@ router.use(IsLoggedIn);
 
 router
   .route("/")
-  .get(userController.getUserPage)
+  .get(userController.getUser)
   .delete(userController.deleteUser);
 
 module.exports = router;
