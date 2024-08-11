@@ -68,7 +68,6 @@ exports.createHabit = catchAsync(async (req, res) => {
     description,
     icon,
     frequency,
-    timesPerFrequency,
     occurrencesPerDay,
     duration,
     daysOfWeek,
@@ -81,7 +80,6 @@ exports.createHabit = catchAsync(async (req, res) => {
     description,
     icon,
     frequency,
-    timesPerFrequency,
     occurrencesPerDay,
     duration,
     habitDates: []

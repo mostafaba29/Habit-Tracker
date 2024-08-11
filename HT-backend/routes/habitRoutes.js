@@ -16,6 +16,6 @@ router
   .patch(habitController.updateHabit)
   .delete(habitController.deleteHabit);
 
-router.post("complete-habit", habitController.completeHabit);
+router.post("/complete-habit", habitController.completeHabit);
 
 module.exports = router;
