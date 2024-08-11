@@ -1,14 +1,14 @@
 const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 
 exports.signup = catchAsync(async (req, res) => {
-  const { name, phone } = req.body;
+  const { name, phone, password } = req.body;
 
-  if (!name || !phone) {
-    return res
-      .status(400)
-      .json({ message: "Name and phone number are required" });
+  if (!name || !phone || !password) {
+    return res.status(400).json({ message: "All these fields are required" });
   }
+
   const existingUser = await User.findOne({ phone });
   if (existingUser) {
     return res
@@ -18,22 +18,26 @@ exports.signup = catchAsync(async (req, res) => {
 
   const user = await User.create({
     name,
-    phone
+    phone,
+    password
   });
 
   res.status(201).json({ message: "User registered successfully", user });
 });
 
-exports.login = catchAsync(async (req, res) => {
-  const { phone } = req.body;
+exports.login = catchAsync(async (req, res, next) => {
+  const { phone, password } = req.body;
 
-  if (!phone) {
-    return res.status(400).json({ message: "Phone number is required" });
+  if (!phone || !password) {
+    return res
+      .status(400)
+      .json({ message: "Phone number and password are required" });
   }
 
   const user = await User.findOne({ phone, active: true });
-  if (!user) {
-    return res.status(401).json({ message: "User not found or not active" });
+
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError("Incorrect phone or password", 401));
   }
   req.session.userId = user._id;
 
@@ -41,12 +45,8 @@ exports.login = catchAsync(async (req, res) => {
 });
 
 exports.logout = catchAsync(async (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ message: "Could not log out" });
-    }
-    res.status(200).json({ message: "Logout successful" });
-  });
+  req.session = null;
+  res.status(200).json({ message: "Logout successful" });
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {

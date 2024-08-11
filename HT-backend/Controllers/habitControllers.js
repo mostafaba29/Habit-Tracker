@@ -106,20 +106,19 @@ exports.createHabit = catchAsync(async (req, res) => {
 });
 
 exports.getAllUserHabits = catchAsync(async (req, res) => {
-  const { userId } = req.user.id;
+  const { date } = req.query;
+  let filter = { user: req.user._id };
 
-  if (!userId) {
-    return res.status(400).json({ message: "User not found" });
+  if (date) {
+    const specificDate = new Date(date);
+    filter = { ...filter, habitDates: specificDate };
   }
 
-  const habits = await Habit.find({ user: userId });
-
-  if (!habits.length) {
-    return res.status(404).json({ message: "No habits found for this user" });
-  }
+  const habits = await Habit.find(filter);
 
   res.status(200).json({
     status: "success",
+    results: habits.length,
     data: {
       habits
     }
