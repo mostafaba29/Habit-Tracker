@@ -3,16 +3,21 @@ const Habit = require("../models/habitModel");
 const Achievement = require("../models/achievementModel");
 const catchAsync = require("../utils/catchAsync");
 
-const getDaysInMonth = (year, month) => {
-  return new Array(moment(`${year}-${month}`, "YYYY-MM").daysInMonth())
-    .fill(null)
-    .map((_, index) => moment({ year, month: month - 1, day: index + 1 }));
+const getDaysInRange = (startDate, endDate) => {
+  const days = [];
+  const currentDay = moment(startDate);
+
+  while (currentDay.isSameOrBefore(endDate)) {
+    days.push(currentDay.clone());
+    currentDay.add(1, "days");
+  }
+
+  return days;
 };
 
 const createDailyHabits = (habitData, userId) => {
-  const now = moment();
-  const daysInMonth = getDaysInMonth(now.year(), now.month() + 1);
-  return daysInMonth.map(day => {
+  const daysInRange = getDaysInRange(habitData.startDate, habitData.endDate);
+  return daysInRange.map(day => {
     return new Habit({
       ...habitData,
       habitDates: [day.toDate()],
@@ -22,11 +27,10 @@ const createDailyHabits = (habitData, userId) => {
 };
 
 const createWeeklyHabits = (habitData, userId, daysOfWeek) => {
-  const now = moment();
-  const daysInMonth = getDaysInMonth(now.year(), now.month() + 1);
+  const daysInRange = getDaysInRange(habitData.startDate, habitData.endDate);
   const habits = [];
 
-  daysInMonth.forEach(day => {
+  daysInRange.forEach(day => {
     if (daysOfWeek.includes(day.format("dddd"))) {
       habits.push(
         new Habit({
@@ -42,21 +46,21 @@ const createWeeklyHabits = (habitData, userId, daysOfWeek) => {
 };
 
 const createMonthlyHabits = (habitData, userId, daysOfMonth) => {
-  const now = moment();
-  const daysInMonth = getDaysInMonth(now.year(), now.month() + 1);
+  const daysInRange = getDaysInRange(habitData.startDate, habitData.endDate);
   const habits = [];
 
   daysOfMonth.forEach(day => {
-    const habitDay = daysInMonth.find(d => d.date() === day);
-    if (habitDay) {
-      habits.push(
-        new Habit({
-          ...habitData,
-          habitDates: [habitDay.toDate()],
-          user: userId
-        })
-      );
-    }
+    daysInRange.forEach(d => {
+      if (d.date() === day) {
+        habits.push(
+          new Habit({
+            ...habitData,
+            habitDates: [d.toDate()],
+            user: userId
+          })
+        );
+      }
+    });
   });
 
   return habits;
@@ -71,7 +75,9 @@ exports.createHabit = catchAsync(async (req, res) => {
     occurrencesPerDay,
     duration,
     daysOfWeek,
-    daysOfMonth
+    daysOfMonth,
+    startDate,
+    endDate
   } = req.body;
   const userId = req.user.id;
 
@@ -82,7 +88,9 @@ exports.createHabit = catchAsync(async (req, res) => {
     frequency,
     occurrencesPerDay,
     duration,
-    habitDates: []
+    habitDates: [],
+    startDate: moment(startDate).toDate(),
+    endDate: moment(endDate).toDate()
   };
 
   let habits = [];
@@ -189,10 +197,6 @@ exports.completeHabit = catchAsync(async (req, res, next) => {
       achievements.streakCount = 1;
     }
     achievements.lastStreakDate = currentDate;
-    achievements.hotStreak = Math.max(
-      achievements.hotStreak,
-      achievements.streakCount
-    );
     await achievements.save();
   } else {
     await Achievement.create({

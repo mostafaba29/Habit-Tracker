@@ -17,10 +17,6 @@ const achievementSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    hotStreak: {
-      type: Number,
-      default: 0
-    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",

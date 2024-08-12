@@ -14,6 +14,14 @@ const habitSchema = new mongoose.Schema(
       enum: ["daily", "weekly", "monthly"],
       default: "daily"
     },
+    startDate: {
+      type: Date,
+      required: true
+    },
+    endDate: {
+      type: Date,
+      required: true
+    },
     occurrencesPerDay: { type: Number },
     habitDates: {
       type: [Date],

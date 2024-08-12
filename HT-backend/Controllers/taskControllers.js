@@ -129,10 +129,6 @@ exports.completeTask = catchAsync(async (req, res, next) => {
       achievements.streakCount = 1;
     }
     achievements.lastStreakDate = currentDate;
-    achievements.hotStreak = Math.max(
-      achievements.hotStreak,
-      achievements.streakCount
-    );
     await achievements.save();
   } else {
     await Achievement.create({
