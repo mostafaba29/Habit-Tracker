@@ -4,155 +4,148 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Upperbar from "@/components/Upperbar";
 import Sidebar from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import TaskForm from "@/components/TaskForm";
 import { TaskGallery } from "@/components/TaskGallery";
-import {
-  fetchTasks,
-  createTask,
-  updateTask,
-  deleteTask,
-  completeTask,
-  fetchUser,
-} from "@/utils/api";
-import { Task } from "@/components/Task";
 import Loading from "@/components/Loading";
 import ErrorPage from "@/components/ErrorPage";
+import AddTaskForm from "@/components/AddTaskForm";
+import EditTaskForm from "@/components/EditTaskForm";
+import { fetchTasks,updateTask,completeTask,deleteTask } from "@/utils/api";
+import {Task} from "../../components/Types/Task";
+import { useUserContext } from '@/utils/UserProvider'
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal);
 export default function Tasks() {
   const [sideBarOpen, setSidebarOpen] = useState(false);
   const [addTaskDialog, setAddTaskDialog] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const queryClient = useQueryClient();
+  const user = useUserContext();
+  const isLoggedIn = !!user;
 
-  const queryclient = useQueryClient();
-
-  //queries
-  const {
-    data: tasks = [],
-    isLoading: tasksLoading,
-    isError: tasksError,
-  } = useQuery({
-    queryKey: ["tasks"],
+  const {data:tasks,isLoading,isError,error}=useQuery({
+    queryKey:['tasks'],
     queryFn: fetchTasks,
-  });
+    staleTime: 1000*60*5,
+  })
 
-  const {
-    data: userData,
-    isLoading: userDataLoading,
-    isError: userDataError,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: fetchUser,
-  });
-
-  //mutations
-  const createTaskMutation = useMutation({
-    mutationFn: createTask,
-    onSuccess: () => {
-      queryclient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-  });
-
-  const deleteTaskMutation = useMutation({
-    mutationFn: (id: string) => deleteTask(id),
-    onSuccess: () => {
-      queryclient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-  });
-
-  const updateTaskMutation = useMutation({
+  const {mutateAsync:updateMutateAsync,isLoading:isUpdateLoading,isError:isUpdateError,error:updateError} = useMutation({
     mutationFn: updateTask,
     onSuccess: () => {
-      queryclient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries(['tasks']);
+      MySwal.fire({
+        icon: 'success',
+        title: 'Task Updated',
+      })
     },
-  });
+    onError: (error) => {
+      console.log("Failed to update task", error);
+    },
+  })
 
-  const completeTaskMutation = useMutation({
-    mutationFn: (id: string) => completeTask(id),
+  const {mutateAsync:completeMutateAsync,isLoading:isCompleteLoading,isError:isCompleteError,error:completeError} = useMutation({
+    mutationFn: completeTask,
     onSuccess: () => {
-      queryclient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries(['tasks']);
+      MySwal.fire({
+        icon: 'success',
+        title: 'Task Completed',
+      })
     },
-  });
+    onError: (error) => {
+      console.log("Failed to complete task", error);
+    },
+  })
 
-  //event handlers
-  const handleAddTaksButtonClick = () => {
-    setAddTaskDialog(true);
-    setEditingTask(undefined);
-  };
-  const handleAddTaskDialogClose = () => {
-    setAddTaskDialog(false);
-    setEditingTask(undefined);
-  };
-  const handleMenuClick = () => setSidebarOpen(!sideBarOpen);
+  const {mutateAsync:deleteMutateAsync,isLoading:isDeleteLoading,isError:isDeleteError,error:deleteError} = useMutation({
+    mutationFn: deleteTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['tasks']);
+      MySwal.fire({
+        icon: 'success',
+        title: 'Task Deleted',
+      })
+    },
+    onError: (error) => {
+      console.log("Failed to delete task", error);
+    },
+  })
 
-  const handleCreateTask = (newTask: {
-    title: string;
-    description: string;
-    priority: string;
-  }) => {
-    createTaskMutation.mutate(newTask);
-    handleAddTaskDialogClose();
-  };
-  const handleTaskSubmit = (
-    taskData: TaskFormData | (TaskFormData & { id: string })
-  ) => {
-    if ("id" in taskData) {
-      updateTaskMutation.mutate(taskData);
-    } else {
-      createTaskMutation.mutate(taskData);
+  const handleCompleteTask = async (task:Task) => {
+    try {
+      await completeMutateAsync(task._id || '');
+    } catch (error) {
+      console.error("Error completing task:", error);
     }
-    handleAddTaskDialogClose();
-  };
+  }
+  
+  const handleDeleteTask = async (task:Task) => {
+    try {
+      await deleteMutateAsync(task._id || '');
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  }
+  
+  const handleUpdateTask = async (task:Task) => {
+    try {
+      await updateMutateAsync({ taskId:task._id || '',task:task });
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  }
 
-  const handleUpdateTask = (task: Task) => {
+  const handleEditTask = (task:Task) =>{
     setEditingTask(task);
-    setAddTaskDialog(true);
-  };
-  const handleCompleteTask = (id: string) => completeTaskMutation.mutate(id);
-  const handleDeleteTask = (id: string) => deleteTaskMutation.mutate(id);
+  }
 
-  // if(tasksLoading || userDataLoading) {return (
-  //     <>
-  //     <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/>
-  //     <div className="flex flex-row items-start transition-all duration-500">
-  //     {sideBarOpen && <Sidebar open={sideBarOpen} />}
-  //     <div className="flex flex-grow justify-around">
-  //         <Loading loadingMessage={"Loading tasks..."}/>
-  //     </div>
-  //     </div>
-  //     </>
-  // )}
-  // if(tasksError || userDataError) {
-  //     const errorMessage = tasksError
-  //         ? (tasksError as Error)?.message || "Failed to load tasks"
-  //         : (userDataError as Error)?.message || "Failed to load user data";
-  //     return <ErrorPage errorMessage={errorMessage} />;
-  // }
+  const handleMenuClick = ()=>{
+    setSidebarOpen(!sideBarOpen);
+  }
+
+  if(isError){
+    return (
+      <ErrorPage errorMessage={error.message} />
+    )
+  }
+
+  if(isLoading){
+    return(
+    <div className="bg-zinc-950 h-screen">
+      <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/>
+      {sideBarOpen && <Sidebar open={sideBarOpen} isLoggedIn={false}  />}
+      <div className="flex flex-col items-center ">
+        <Loading loadingMessage="Loading tasks..." />
+      </div>
+    </div>
+    )
+  }
 
   return (
     <div className="bg-zinc-950 h-screen">
-      <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick} />
-      <div className="flex flex-row items-start transition-all duration-500">
-        {sideBarOpen && <Sidebar open={sideBarOpen} />}
-        <div className="flex flex-grow justify-around">
-          <Button
-            className="my-4 bg-zinc-700 hover:bg-lime-900"
-            onClick={handleAddTaksButtonClick}
-          >
-            Add New Task
-          </Button>
-          <TaskForm
-            isOpen={addTaskDialog}
-            onClose={handleAddTaskDialogClose}
-            onSubmit={handleTaskSubmit}
-            task={editingTask}
-          />
+      <Upperbar sideBarOpen={sideBarOpen} handleMenuClick={handleMenuClick}/>
+      {sideBarOpen && <Sidebar open={sideBarOpen} isLoggedIn={isLoggedIn} {...(isLoggedIn && { user })} />}
+      <div className="flex flex-col items-center ">
+        <div className="flex flex-col items-center justify-around">
+        <Button className='my-4 bg-zinc-700 hover:bg-lime-900' onClick={() => setAddTaskDialog(true)}>Add New Task</Button>
           <TaskGallery
-            tasks={tasks}
+            tasks={tasks.tasks}
             onComplete={handleCompleteTask}
             onDelete={handleDeleteTask}
-            onEdit={handleUpdateTask}
+            onEdit={handleEditTask}
           />
         </div>
+        {addTaskDialog && (
+                <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
+                    <AddTaskForm onClose={() => setAddTaskDialog(false)} />
+                </div>
+            )}
+        {editingTask && (
+                <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
+                    <EditTaskForm task={editingTask} onUpdate={handleUpdateTask} onClose={() => setEditingTask(null)} />
+                </div>
+            )}
       </div>
     </div>
   );

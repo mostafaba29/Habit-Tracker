@@ -3,7 +3,7 @@ import {useState,useEffect} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
-import { Task,taskPriority} from '@/components/Task';
+import { Task,taskPriority} from '@/components/Types/Task';
 import {createTask,updateTask} from '@/utils/api';
 import {useMutation,useQueryClient} from '@tanstack/react-query';
 

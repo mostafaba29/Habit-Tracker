@@ -1,16 +1,19 @@
 import {useState} from 'react';
-import { Habit } from './Habit';
+import { Habit } from './Types/Habit';
 import HabitCard from './HabitCard';
 import { Button } from './ui/button';
 
 interface GalleryProps {
     habits: Habit[];
+    onComplete: (habit: Habit) => void;
+    onDelete: (habit: Habit) => void;
+    onEdit: (habit: Habit) => void;
 }
 
 const HabitsPerPage = 9;
-export default function  HabitGallery ({ habits }:GalleryProps){
+export default function  HabitGallery ({ habits, onComplete, onDelete, onEdit }:GalleryProps){
     const [currentPage, setCurrentPage] = useState(1);
-
+    
     const startIndex = (currentPage - 1) * HabitsPerPage;
     const endIndex = startIndex + HabitsPerPage;
     const paginatedHabits = habits.slice(startIndex, endIndex);
@@ -39,7 +42,7 @@ export default function  HabitGallery ({ habits }:GalleryProps){
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {paginatedHabits.map((habit, index) => (
                     <div key={index} className="w-full">
-                        <HabitCard habit={habit} />
+                        <HabitCard habit={habit} onComplete={onComplete} onDelete={onDelete} onEdit={onEdit} />
                     </div>
                 ))}
             </div>

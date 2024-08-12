@@ -1,4 +1,4 @@
-import {Habit} from './Habit';
+import {Habit} from './Types/Habit';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Check, X } from "lucide-react";

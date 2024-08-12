@@ -1,5 +1,6 @@
+
 import  TaskCard  from './TaskCard';
-import { Task } from './Task';
+import { Task } from './Types/Task';
 interface TaskGalleryProps {
     tasks: Task[];
     onComplete: (task: Task) => void;

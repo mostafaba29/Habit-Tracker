@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import {stat} from './Stat';
+import {stat} from './Types/Stat';
 interface StatsProps{
     stats:stat[]
 }
