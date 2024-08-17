@@ -1,7 +1,6 @@
 const Task = require("../models/taskModel");
 const User = require("../models/userModel");
 const Achievement = require("../models/achievementModel");
-
 const catchAsync = require("../utils/catchAsync");
 
 exports.getAllUserTasks = catchAsync(async (req, res) => {

@@ -3,67 +3,35 @@ const Habit = require("../models/habitModel");
 const Achievement = require("../models/achievementModel");
 const catchAsync = require("../utils/catchAsync");
 
-const getDaysInRange = (startDate, endDate) => {
-  const days = [];
-  const currentDay = moment(startDate);
+const generateHabitDates = (frequency, startDate, endDate, days = []) => {
+  const habitDates = [];
+  // Clone the start date and set it to the start of the day UTC
+  const currentDate = moment
+    .utc(startDate)
+    .startOf("day")
+    .clone();
+  const endMoment = moment.utc(endDate).endOf("day"); // Set the end date to the end of the day UTC
 
-  while (currentDay.isSameOrBefore(endDate)) {
-    days.push(currentDay.clone());
-    currentDay.add(1, "days");
+  if (!Array.isArray(days)) {
+    days = [];
   }
 
-  return days;
-};
-
-const createDailyHabits = (habitData, userId) => {
-  const daysInRange = getDaysInRange(habitData.startDate, habitData.endDate);
-  return daysInRange.map(day => {
-    return new Habit({
-      ...habitData,
-      habitDates: [day.toDate()],
-      user: userId
-    });
-  });
-};
-
-const createWeeklyHabits = (habitData, userId, daysOfWeek) => {
-  const daysInRange = getDaysInRange(habitData.startDate, habitData.endDate);
-  const habits = [];
-
-  daysInRange.forEach(day => {
-    if (daysOfWeek.includes(day.format("dddd"))) {
-      habits.push(
-        new Habit({
-          ...habitData,
-          habitDates: [day.toDate()],
-          user: userId
-        })
-      );
+  // Loop until the currentDate is after the end date
+  while (currentDate.isSameOrBefore(endMoment, "day")) {
+    if (frequency === "daily") {
+      habitDates.push(currentDate.toDate());
+    } else if (
+      frequency === "weekly" &&
+      days.includes(currentDate.format("dddd").toLowerCase())
+    ) {
+      habitDates.push(currentDate.toDate());
+    } else if (frequency === "monthly" && days.includes(currentDate.date())) {
+      habitDates.push(currentDate.toDate());
     }
-  });
+    currentDate.add(1, "day");
+  }
 
-  return habits;
-};
-
-const createMonthlyHabits = (habitData, userId, daysOfMonth) => {
-  const daysInRange = getDaysInRange(habitData.startDate, habitData.endDate);
-  const habits = [];
-
-  daysOfMonth.forEach(day => {
-    daysInRange.forEach(d => {
-      if (d.date() === day) {
-        habits.push(
-          new Habit({
-            ...habitData,
-            habitDates: [d.toDate()],
-            user: userId
-          })
-        );
-      }
-    });
-  });
-
-  return habits;
+  return habitDates;
 };
 
 exports.createHabit = catchAsync(async (req, res) => {
@@ -74,13 +42,36 @@ exports.createHabit = catchAsync(async (req, res) => {
     frequency,
     occurrencesPerDay,
     duration,
-    daysOfWeek,
-    daysOfMonth,
+    habitDates,
     startDate,
     endDate
   } = req.body;
   const userId = req.user.id;
 
+  if (
+    (frequency === "weekly" || frequency === "monthly") &&
+    (!habitDates || habitDates.length === 0)
+  ) {
+    return res.status(400).json({
+      message: "habitDates are required for weekly and monthly frequency"
+    });
+  }
+
+  // Generate habit dates
+  const generatedHabitDates = generateHabitDates(
+    frequency,
+    moment
+      .utc(startDate)
+      .startOf("day")
+      .toISOString(),
+    moment
+      .utc(endDate)
+      .endOf("day")
+      .toISOString(),
+    habitDates
+  );
+
+  // Ensure the startDate and endDate cover the entire day in UTC
   const habitData = {
     title,
     description,
@@ -88,27 +79,26 @@ exports.createHabit = catchAsync(async (req, res) => {
     frequency,
     occurrencesPerDay,
     duration,
-    habitDates: [],
-    startDate: moment(startDate).toDate(),
-    endDate: moment(endDate).toDate()
+    habitDates: generatedHabitDates,
+    startDate: moment
+      .utc(startDate)
+      .startOf("day")
+      .toDate(),
+    endDate: moment
+      .utc(endDate)
+      .endOf("day")
+      .toDate(),
+    user: userId,
+    streak: 0,
+    completedDates: []
   };
 
-  let habits = [];
-  if (frequency === "daily") {
-    habits = createDailyHabits(habitData, userId);
-  } else if (frequency === "weekly" && daysOfWeek) {
-    habits = createWeeklyHabits(habitData, userId, daysOfWeek);
-  } else if (frequency === "monthly" && daysOfMonth) {
-    habits = createMonthlyHabits(habitData, userId, daysOfMonth);
-  } else {
-    return res
-      .status(400)
-      .json({ message: "Invalid frequency or missing daysOfWeek/daysOfMonth" });
-  }
+  const habit = await Habit.create(habitData);
 
-  await Habit.insertMany(habits);
-
-  res.status(201).json({ message: "Habits created successfully", habits });
+  res.status(201).json({
+    message: "Habits created successfully",
+    habit
+  });
 });
 
 exports.getAllUserHabits = catchAsync(async (req, res) => {

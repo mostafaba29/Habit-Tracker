@@ -22,7 +22,7 @@ const habitSchema = new mongoose.Schema(
       type: Date,
       required: true
     },
-    occurrencesPerDay: { type: Number },
+    occurrencesPerDay: Number,
     habitDates: {
       type: [Date],
       days: [String]
