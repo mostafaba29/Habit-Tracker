@@ -9,7 +9,7 @@ const AppError = require("./utils/appError");
 const userRouter = require("./routes/userRoutes");
 const habitRouter = require("./routes/habitRoutes");
 const taskRouter = require("./routes/taskRoutes");
-const achievementRouter = require("./routes/habitRoutes");
+const achievementRouter = require("./routes/achievementRoutes");
 
 const app = express();
 

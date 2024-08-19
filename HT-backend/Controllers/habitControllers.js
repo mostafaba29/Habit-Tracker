@@ -160,7 +160,7 @@ exports.deleteHabit = catchAsync(async (req, res) => {
 
 exports.completeHabit = catchAsync(async (req, res, next) => {
   const { habitId } = req.body;
-  const currentDate = new Date();
+  const currentDate = new Date().setHours(0, 0, 0, 0);
   const habit = await Habit.findById(habitId);
 
   if (!habit) {
@@ -170,7 +170,31 @@ exports.completeHabit = catchAsync(async (req, res, next) => {
     });
   }
 
-  habit.completedDates.push({ currentDate, isCompleted: true });
+  const isScheduledForToday = habit.habitDates.some(
+    date => new Date(date).setHours(0, 0, 0, 0) === currentDate
+  );
+
+  if (!isScheduledForToday) {
+    return res.status(400).json({
+      status: "fail",
+      message: "This habit is not scheduled for today."
+    });
+  }
+
+  // Check if the habit has already been marked as completed for today
+  const alreadyCompletedToday = habit.completedDates.some(
+    completed => new Date(completed.date).setHours(0, 0, 0, 0) === currentDate
+  );
+
+  if (alreadyCompletedToday) {
+    return res.status(400).json({
+      status: "fail",
+      message: "This habit has already been completed today."
+    });
+  }
+
+  // Mark the habit as complete for today
+  habit.completedDates.push({ date: new Date(), isCompleted: true });
   await habit.save();
 
   const achievements = await Achievement.findOne({ user: req.user.id });
@@ -186,14 +210,14 @@ exports.completeHabit = catchAsync(async (req, res, next) => {
     } else {
       achievements.streakCount = 1;
     }
-    achievements.lastStreakDate = currentDate;
+    achievements.lastStreakDate = new Date();
     await achievements.save();
   } else {
     await Achievement.create({
       user: req.user.id,
       completedHabitsCount: 1,
       streakCount: 1,
-      lastStreakDate: currentDate,
+      lastStreakDate: new Date(),
       hotStreak: 1
     });
   }
